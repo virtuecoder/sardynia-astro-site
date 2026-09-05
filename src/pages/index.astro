@@ -1,0 +1,15 @@
+---
+// Layout component
+import Layout from '../components/layout/Layout.astro';
+import MapContainer from '../components/map/MapContainer.astro';
+import DetailsPanel from '../components/details/DetailsPanel.astro';
+---
+<Layout title="Sardynia – Mapa z Dojazdem" description="Interaktywna mapa Sardynii z najpiękniejszymi atrakcjami">
+  <div class="app">
+    <MapContainer />
+    <DetailsPanel />
+  </div>
+</Layout>
+
+<!-- Initialize Leaflet map client-side after page load -->
+<script type="module" src="/scripts/map-client.js"></script>
