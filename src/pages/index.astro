@@ -13,9 +13,10 @@ import DetailsPanel from '../components/details/DetailsPanel.astro';
 
 <script type="module">
   import { initializeMap } from '../scripts/map-client';
+  // Delay to ensure CSS dimensions are applied before Leaflet init
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initializeMap);
+    window.addEventListener('DOMContentLoaded', () => setTimeout(initializeMap, 200));
   } else {
-    initializeMap();
+    setTimeout(initializeMap, 200);
   }
 </script>
