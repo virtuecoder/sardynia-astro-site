@@ -1,4 +1,4 @@
-import 'leaflet';
+import L from 'leaflet';
 import type { Attraction } from '../types';
 import { attractions, startLocation, categoryClassMap, categoryLabelMap } from '../data/attractions';
 
@@ -197,10 +197,4 @@ export function initializeMap(): void {
   window.addEventListener('resize', () => { map.invalidateSize(); setTimeout(updateLabelPositions, 200); });
 
   console.log(`✅ Sardynia – ${attractions.length} atrakcji z dojazdem z Badesi!`);
-}
-
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeMap);
-} else {
-  initializeMap();
 }

@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
   site: 'https://virtuecoder.github.io/sardynia-astro-site',
+  base: '/sardynia-astro-site',
   vite: {
     plugins: [tailwindcss()],
   },
