@@ -11,5 +11,11 @@ import DetailsPanel from '../components/details/DetailsPanel.astro';
   </div>
 </Layout>
 
-<!-- Initialize Leaflet map client-side after page load -->
-<script type="module" src="/scripts/map-client.js"></script>
+<script type="module">
+  import { initializeMap } from '../scripts/map-client';
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initializeMap);
+  } else {
+    initializeMap();
+  }
+</script>
