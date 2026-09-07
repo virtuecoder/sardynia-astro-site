@@ -3,10 +3,10 @@ import type { Attraction } from '../../types';
 import { startLocation } from '../../data/attractions';
 
 interface Props {
-  activeAttraction: Attraction | null;
+  activeAttraction?: Attraction | null;
 }
 
-const { activeAttraction } = Astro.props;
+const { activeAttraction = null } = Astro.props;
 
 const placeholderSvg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='600' height='300'%3E%3Crect width='600' height='300' fill='%23e5dfd8'/%3E%3Ctext x='300' y='150' font-family='sans-serif' font-size='20' fill='%23999' text-anchor='middle' dominant-baseline='central'%3E📷 Brak zdjęcia%3C/text%3E%3C/svg%3E";
 
@@ -25,60 +25,63 @@ const categoryLabels: Record<string, string> = {
 };
 ---
 
-<div class="details-panel flex flex-col">
-  <h2 class="text-xl font-semibold text-gray-800 mb-2 flex items-center gap-2">
-    🏝️ Sardynia
-  </h2>
+<section id="details-panel" class="details-panel flex flex-col" aria-label="Miejsca i trasy" tabindex="-1">
+  <div class="details-heading">
+    <span class="details-kicker">Plan podróży</span>
+    <h2 class="text-xl font-semibold text-gray-800 mb-2 flex items-center gap-2">
+      Sardynia
+    </h2>
+  </div>
   <div class="subhead text-sm text-gray-500 border-b border-gray-200 pb-3 mb-4">
-    Kliknij czerwoną kropkę lub nazwę, aby zobaczyć szczegóły
+    Kliknij punkt na mapie, aby zobaczyć szczegóły miejsca i dojazd.
   </div>
 
   <div id="detail-content" class="flex-1 flex flex-col relative">
-    {activeAttraction ? (
-      <div id="detail-info" class="flex-1 flex flex-col space-y-4 animate-fade-up">
-        <div id="detail-name" class="text-2xl font-bold text-gray-900">{activeAttraction.name}</div>
-        <div id="detail-category" class={`text-xs font-semibold text-white px-3 py-1 rounded-full ${categoryClasses[activeAttraction.category] || ''}`}>
-          {categoryLabels[activeAttraction.category] || '⭐ Atrakcja'}
-        </div>
-        {activeAttraction.img ? (
-          <img 
-            id="detail-img" 
-            src={activeAttraction.img} 
-            alt={activeAttraction.name} 
-            class="w-full h-48 object-cover rounded-lg shadow-lg bg-gray-200"
-            onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27600%27 height=%27300%27%3E%3Crect width=%27600%27 height=%27300%27 fill=%27%23e5dfd8%27/%3E%3Ctext x=%27300%27 y=%27150%27 font-family=%27sans-serif%27 font-size=%2720%27 fill=%27%23999%27 text-anchor=%27middle%27 dominant-baseline=%27central%27%3E📷 Brak zdjęcia%3C/text%3E%3C/svg%3E'"
-          />
-        ) : (
-          <img 
-            id="detail-img" 
-            src={placeholderSvg}
-            alt={activeAttraction.name} 
-            class="w-full h-48 object-cover rounded-lg shadow-lg bg-gray-200"
-          />
-        )}
-        <p id="detail-desc" class="text-gray-800 leading-relaxed">{activeAttraction.desc}</p>
-        <div id="detail-price" class="text-sm font-medium text-green-700 bg-green-50 px-4 py-2 rounded-full inline-block mb-3">
-          {activeAttraction.price}
-        </div>
-        <span id="detail-coords" class="text-xs text-gray-500 font-mono bg-gray-50 px-3 py-1 rounded-full inline-block mb-3">
-          🌐 {activeAttraction.lat.toFixed(4)}, {activeAttraction.lng.toFixed(4)}
-        </span>
-        <a 
-          id="detail-dir-btn" 
-          class="dir-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-full flex items-center gap-2 self-start transition-colors"
-          href={`https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(startLocation)}&destination=${activeAttraction.lat},${activeAttraction.lng}&travelmode=driving`}
-          target="_blank"
-          rel="noopener"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 fill-current"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
-          Pokaż trasę
-        </a>
+    <div id="detail-info" class="flex-1 flex flex-col space-y-4 animate-fade-up" style={activeAttraction ? undefined : 'display: none;'}>
+      <div id="detail-name" class="text-2xl font-bold text-gray-900">{activeAttraction?.name}</div>
+      <div id="detail-category" class={`text-xs font-semibold text-white px-3 py-1 rounded-full ${activeAttraction ? categoryClasses[activeAttraction.category] || '' : ''}`}>
+        {activeAttraction ? categoryLabels[activeAttraction.category] || '⭐ Atrakcja' : ''}
       </div>
-    ) : (
-      <div class="placeholder flex-1 flex flex-col items-center justify-center text-center text-gray-400">
-        <div class="icon-big text-5xl mb-4">📍</div>
-        <p>Wybierz atrakcję na mapie, aby zobaczyć zdjęcie, opis i dojazd.</p>
+      {activeAttraction?.img ? (
+        <img
+          id="detail-img"
+          src={activeAttraction.img}
+          alt={activeAttraction.name}
+          class="w-full h-48 object-cover rounded-lg shadow-lg bg-gray-200"
+          onerror="this.onerror=null;this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27600%27 height=%27300%27%3E%3Crect width=%27600%27 height=%27300%27 fill=%27%23e5dfd8%27/%3E%3Ctext x=%27300%27 y=%27150%27 font-family=%27sans-serif%27 font-size=%2720%27 fill=%27%23999%27 text-anchor=%27middle%27 dominant-baseline=%27central%27%3E📷 Brak zdjęcia%3C/text%3E%3C/svg%3E'"
+        />
+      ) : (
+        <img
+          id="detail-img"
+          src={placeholderSvg}
+          alt={activeAttraction?.name || 'Brak zdjęcia'}
+          class="w-full h-48 object-cover rounded-lg shadow-lg bg-gray-200"
+        />
+      )}
+      <p id="detail-desc" class="text-gray-800 leading-relaxed">{activeAttraction?.desc}</p>
+      <div id="detail-price" class="text-sm font-medium text-green-700 bg-green-50 px-4 py-2 rounded-full inline-block mb-3">
+        {activeAttraction?.price}
       </div>
-    )}
+      <span id="detail-coords" class="text-xs text-gray-500 font-mono bg-gray-50 px-3 py-1 rounded-full inline-block mb-3">
+        {activeAttraction ? `🌐 ${activeAttraction.lat.toFixed(4)}, ${activeAttraction.lng.toFixed(4)}` : ''}
+      </span>
+      <a
+        id="detail-dir-btn"
+        class="dir-btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-full flex items-center gap-2 self-start transition-colors"
+        href={activeAttraction ? `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(startLocation)}&destination=${activeAttraction.lat},${activeAttraction.lng}&travelmode=driving` : '#'}
+        target="_blank"
+        rel="noopener"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" class="w-4 h-4 fill-current"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5-2.5-1.12-2.5-2.5-2.5z"/></svg>
+        Pokaż trasę
+      </a>
+    </div>
+
+    <div class="placeholder flex-1 flex flex-col items-center justify-center text-center text-gray-400" style={activeAttraction ? 'display: none;' : undefined}>
+      <div class="placeholder-icon" aria-hidden="true">
+        <svg viewBox="0 0 24 24"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg>
+      </div>
+      <p>Wybierz atrakcję na mapie, aby zobaczyć zdjęcie, opis i dojazd.</p>
+    </div>
   </div>
-</div>
+</section>

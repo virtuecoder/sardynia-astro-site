@@ -1,6 +1,6 @@
 import L from 'leaflet';
 import type { Attraction } from '../types';
-import { attractions, startLocation, categoryClassMap, categoryLabelMap } from '../data/attractions';
+import { attractions, startLocation, initialMapCenter, initialZoom, categoryClassMap, categoryLabelMap } from '../data/attractions';
 
 const CLUSTER_THRESHOLD_DEG = 0.015;
 const MARKER_OFFSET_RADIUS = 0.004;
@@ -46,7 +46,7 @@ export function initializeMap(): void {
   const mapElement = document.getElementById('map');
   if (!mapElement) return;
 
-  const map = L.map('map', { center: [40.1209, 9.0129], zoom: 8.5, zoomControl: true });
+  const map = L.map('map', { center: initialMapCenter, zoom: initialZoom, zoomControl: true });
 
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap',
@@ -107,7 +107,10 @@ export function initializeMap(): void {
     priceEl!.textContent = place.price;
     coordsEl!.textContent = `🌐 ${place.lat.toFixed(4)}, ${place.lng.toFixed(4)}`;
     dirBtn!.setAttribute('href', `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(startLocation)}&destination=${place.lat},${place.lng}&travelmode=driving`);
+    const detailInfo = document.getElementById('detail-info');
+    if (detailInfo) detailInfo.style.display = 'flex';
     map.flyTo([place.lat, place.lng], 10, { duration: 0.8 });
+    window.dispatchEvent(new CustomEvent('attraction:selected', { detail: place }));
   }
 
   function doBoxesOverlap(b1: any, b2: any): boolean {
@@ -192,6 +195,13 @@ export function initializeMap(): void {
   map.on('moveend', updateLabelPositions);
   map.on('zoomend', updateLabelPositions);
   map.on('resize', updateLabelPositions);
+
+  window.addEventListener('map:requested', () => {
+    window.setTimeout(() => {
+      map.invalidateSize();
+      updateLabelPositions();
+    }, 120);
+  });
 
   setTimeout(() => { map.invalidateSize(); updateLabelPositions(); }, 500);
   window.addEventListener('resize', () => { map.invalidateSize(); setTimeout(updateLabelPositions, 200); });

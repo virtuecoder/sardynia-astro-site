@@ -5,11 +5,55 @@ import MapContainer from '../components/map/MapContainer.astro';
 import DetailsPanel from '../components/details/DetailsPanel.astro';
 ---
 <Layout title="Sardynia – Mapa z Dojazdem" description="Interaktywna mapa Sardynii z najpiękniejszymi atrakcjami">
-  <div class="app">
+  <div class="app" data-view="map">
     <MapContainer />
     <DetailsPanel />
+
+    <nav class="mobile-tabs" aria-label="Widok aplikacji" role="tablist">
+      <button class="mobile-tab" type="button" role="tab" aria-selected="true" aria-controls="map-view" data-view-tab="map">
+        <svg class="mobile-tab-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M9 18.5 3.5 21V5.5L9 3l6 2.5L20.5 3v15.5L15 21 9 18.5Z" />
+          <path d="M9 3v15.5M15 5.5V21" />
+        </svg>
+        <span>Mapa</span>
+      </button>
+      <button class="mobile-tab" type="button" role="tab" aria-selected="false" aria-controls="details-panel" data-view-tab="details">
+        <svg class="mobile-tab-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z" />
+          <circle cx="12" cy="10" r="2.5" />
+        </svg>
+        <span>Miejsca i trasy</span>
+      </button>
+    </nav>
   </div>
 </Layout>
+
+<script>
+  const app = document.querySelector<HTMLElement>('.app');
+  const viewTabs = Array.from(document.querySelectorAll<HTMLButtonElement>('[data-view-tab]'));
+
+  function setView(view: 'map' | 'details') {
+    if (!app) return;
+
+    app.dataset.view = view;
+    viewTabs.forEach((tab) => {
+      const isSelected = tab.dataset.viewTab === view;
+      tab.setAttribute('aria-selected', String(isSelected));
+      tab.tabIndex = isSelected ? 0 : -1;
+    });
+
+    if (view === 'map') window.dispatchEvent(new Event('map:requested'));
+  }
+
+  viewTabs.forEach((tab) => {
+    tab.addEventListener('click', () => {
+      const view = tab.dataset.viewTab;
+      if (view === 'map' || view === 'details') setView(view);
+    });
+  });
+
+  window.addEventListener('attraction:selected', () => setView('details'));
+</script>
 
 <script type="module">
   import { initializeMap } from '../scripts/map-client';
